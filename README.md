@@ -2,7 +2,7 @@
 
 **Procedural objects from a handful of parameters.** Pick a skeleton, give it flesh, add a lattice or some noise — and get a finished, closed mesh in one call. No modelling, no boolean operations, no mesh repair.
 
-![Fifteen shapes from random seeds](docs/gallery.png)
+![Fifteen generated shapes](docs/gallery.png)
 
 - **Skeleton → flesh → lattice → noise.** Shapes are built the way people make things: a frame, material around it, structure, then irregularity. ~30 parameters, each with a visible effect.
 - **Always a usable result.** Every parameter combination yields one connected, closed mesh with rounded joints. Random seeds give endless variations.
