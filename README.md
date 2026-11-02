@@ -88,7 +88,7 @@ Concept, design and art direction: **Iromune Goshikizawa** ([@modu1lor](https://
 
 Built on well-known public techniques: the polynomial smooth minimum and distance functions popularised by [Inigo Quilez](https://iquilezles.org/articles/), Surface Nets meshing, and the mulberry32 random number generator (public domain).
 
-This library is the shape engine of [Irorandom](https://kaiwa-obje.pages.dev), a small toy box of generated objects.
+This library is the shape engine of [Irorandom](https://irorandom.irosawa.com), a small toy box of generated objects.
 
 ## License
 
