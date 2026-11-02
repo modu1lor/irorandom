@@ -1,0 +1,498 @@
+{
+  "name": "parameters",
+  "about": "Parameters for generate(). Every combination yields one connected, closed mesh (occasionally with a few non-manifold edges where thin parts touch; slicers repair these). Unspecified parameters take their defaults.",
+  "units": "Scene units, Y up, centred on the origin. The longest outer side equals size. toSTL rescales (default longest side 60 mm, Z up).",
+  "groups": {
+    "skeleton": "The core lines or points the shape is built on.",
+    "flesh": "The material wrapped around the skeleton: thickness, cross-section, joints, membranes, holes.",
+    "network": "Subdividing faces into lattices, growing struts, thinning.",
+    "symmetry": "How many times the shape repeats around the vertical axis. Noise follows the same symmetry.",
+    "noise": "Hand-made irregularity: bent skeleton lines and lumpy flesh.",
+    "finish": "Colour and surface finish. These do not change the geometry."
+  },
+  "parameters": [
+    {
+      "key": "base",
+      "group": "skeleton",
+      "default": "prism",
+      "description": "Skeleton type. Decides what the other parameters act on.",
+      "type": "enum",
+      "options": [
+        {
+          "value": "blob",
+          "description": "Points (1–4, see count) with round flesh: a soft lump or cluster of lumps."
+        },
+        {
+          "value": "line",
+          "description": "One straight bar along X."
+        },
+        {
+          "value": "arc",
+          "description": "Part of a circle; arc sets the opening angle in degrees."
+        },
+        {
+          "value": "helix",
+          "description": "A coil spring. Turns = arc / 110 (330 gives 3 turns). height sets the pitch."
+        },
+        {
+          "value": "loop",
+          "description": "One closed horizontal ring or polygon (sides). Flat: height has no effect."
+        },
+        {
+          "value": "prism",
+          "description": "Two horizontal polygons (sides) joined by vertical posts. Box, cylinder (bulge 1), tray, cage."
+        },
+        {
+          "value": "pyramid",
+          "description": "A horizontal polygon whose corners meet at one apex above."
+        },
+        {
+          "value": "bipyramid",
+          "description": "Apexes above and below a horizontal polygon (an abacus bead / octahedron with sides 4)."
+        },
+        {
+          "value": "star",
+          "description": "Arms radiating from the centre (sides = number of arms). height ≥ 0.45 adds arms up and down."
+        }
+      ]
+    },
+    {
+      "key": "sides",
+      "group": "skeleton",
+      "default": 4,
+      "description": "Polygon sides, or number of arms for star. 3 = triangle … 8 = octagon.",
+      "type": "integer",
+      "min": 3,
+      "max": 8,
+      "step": 1,
+      "appliesWhen": "!['line', 'arc', 'helix'].includes(base)"
+    },
+    {
+      "key": "count",
+      "group": "skeleton",
+      "default": 1,
+      "description": "Number of points for blob (1–4).",
+      "type": "integer",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "appliesWhen": "base === 'blob'"
+    },
+    {
+      "key": "bulge",
+      "group": "skeleton",
+      "default": 0,
+      "description": "Bends the horizontal polygon edges: negative curves them inward (star-like), positive outward, 1 = circle. Only horizontal polygon edges bend; vertical posts and slanted edges stay straight (a bipyramid never becomes a sphere).",
+      "type": "number",
+      "min": -0.8,
+      "max": 1,
+      "step": 0.01,
+      "appliesWhen": "FACED.includes(base)"
+    },
+    {
+      "key": "arc",
+      "group": "skeleton",
+      "default": 200,
+      "description": "arc: opening angle in degrees. helix: number of turns = value / 110.",
+      "type": "integer",
+      "min": 60,
+      "max": 330,
+      "step": 1,
+      "appliesWhen": "['arc', 'helix'].includes(base)"
+    },
+    {
+      "key": "size",
+      "group": "skeleton",
+      "default": 0.9,
+      "description": "Overall size. The whole shape is scaled so that its longest outer side equals this value.",
+      "type": "number",
+      "min": 0.5,
+      "max": 1.2,
+      "step": 0.01
+    },
+    {
+      "key": "height",
+      "group": "skeleton",
+      "default": 0.8,
+      "description": "Height ratio; small = flat, large = tall. The effect depends on base (outer height ÷ width, approx.): prism/pyramid/bipyramid ≈ value × 0.5 (so 1.6 → 0.8, never a full cube); helix ≈ value × 1.6; star and blob ≈ value (star is flat below 0.45); no effect on loop, line, arc.",
+      "type": "number",
+      "min": 0.1,
+      "max": 1.6,
+      "step": 0.01
+    },
+    {
+      "key": "depth",
+      "group": "skeleton",
+      "default": 1,
+      "description": "Depth ratio: squashes the shape front-to-back (Z) only. 1 = unchanged; smaller = flatter (circle ring → ellipse, square → rectangle). Flesh thickness is kept.",
+      "type": "number",
+      "min": 0.3,
+      "max": 1,
+      "step": 0.01
+    },
+    {
+      "key": "radius",
+      "group": "flesh",
+      "default": 0.07,
+      "description": "Flesh thickness around the skeleton lines: small = thin wire, large = chunky.",
+      "type": "number",
+      "min": 0.02,
+      "max": 0.3,
+      "step": 0.005
+    },
+    {
+      "key": "profile",
+      "group": "flesh",
+      "default": 0,
+      "description": "Cross-section of the flesh: 0 = round, 1 = square.",
+      "type": "number",
+      "min": 0,
+      "max": 1,
+      "step": 0.01
+    },
+    {
+      "key": "taper",
+      "group": "flesh",
+      "default": 0,
+      "description": "How thickness varies along each line: negative = thick in the middle (spindle), positive = thick at the ends/joints. A line with taper 1 makes a dumbbell.",
+      "type": "number",
+      "min": -1,
+      "max": 1,
+      "step": 0.01
+    },
+    {
+      "key": "fillet",
+      "group": "flesh",
+      "default": 0.8,
+      "description": "Rounding where lines meet: 0 = sharp joints, 2 = smoothly melted together.",
+      "type": "number",
+      "min": 0,
+      "max": 2,
+      "step": 0.01
+    },
+    {
+      "key": "membrane",
+      "group": "flesh",
+      "default": 0,
+      "description": "Fraction of polygon faces covered by a thin plate (0 = wire only, 1 = all faces). Below 1, which faces get a plate is random (depends on seed) unless membraneFaces is set.",
+      "type": "number",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "appliesWhen": "FACED.includes(base)"
+    },
+    {
+      "key": "membraneFaces",
+      "group": "flesh",
+      "default": 0,
+      "description": "Which faces get plates (membrane must be > 0). 0 random (by fraction); 1 sides only (prism → open tube, pyramid → open-bottom canopy); 2 all but upward-facing horizontal faces (prism → open-top box / vessel; low height → tray); 3 horizontal faces only (prism → lidded cage).",
+      "type": "enum",
+      "options": [
+        {
+          "value": 0,
+          "label": "random"
+        },
+        {
+          "value": 1,
+          "label": "sides only"
+        },
+        {
+          "value": 2,
+          "label": "open top"
+        },
+        {
+          "value": 3,
+          "label": "top and bottom only"
+        }
+      ],
+      "appliesWhen": "FACED.includes(base) && membrane > 0"
+    },
+    {
+      "key": "membraneTh",
+      "group": "flesh",
+      "default": 0.5,
+      "description": "Plate thickness, relative to flesh thickness.",
+      "type": "number",
+      "min": 0.2,
+      "max": 1,
+      "step": 0.01,
+      "appliesWhen": "FACED.includes(base) && membrane > 0"
+    },
+    {
+      "key": "hole",
+      "group": "flesh",
+      "default": 0,
+      "description": "A vertical hole bored through the centre (seen from above), as a fraction of the shape width.",
+      "type": "number",
+      "min": 0,
+      "max": 0.6,
+      "step": 0.01
+    },
+    {
+      "key": "holeDepth",
+      "group": "flesh",
+      "default": 1,
+      "description": "How deep the hole goes, measured from the top as a fraction of height. 1 = straight through; smaller leaves a bottom (cup, bowl, planter). Works on solid shapes (blob, thick flesh).",
+      "type": "number",
+      "min": 0.1,
+      "max": 1,
+      "step": 0.01,
+      "appliesWhen": "hole > 0"
+    },
+    {
+      "key": "lattice",
+      "group": "network",
+      "default": 0,
+      "description": "Lattice levels: subdivides faces into a mesh of lines. 0 = none. Adds many skeleton points (useful together with struts).",
+      "type": "integer",
+      "min": 0,
+      "max": 3,
+      "step": 1
+    },
+    {
+      "key": "grid",
+      "group": "network",
+      "default": 1,
+      "description": "Density of each lattice level.",
+      "type": "integer",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "appliesWhen": "lattice > 0"
+    },
+    {
+      "key": "struts",
+      "group": "network",
+      "default": 0,
+      "description": "Fraction of skeleton points that grow spikes. Shapes with few points (blob, line) get few spikes; add lattice to get many.",
+      "type": "number",
+      "min": 0,
+      "max": 1,
+      "step": 0.01
+    },
+    {
+      "key": "strutLen",
+      "group": "network",
+      "default": 0.25,
+      "description": "Spike length.",
+      "type": "number",
+      "min": 0.05,
+      "max": 0.6,
+      "step": 0.01,
+      "appliesWhen": "struts > 0"
+    },
+    {
+      "key": "knob",
+      "group": "network",
+      "default": 0,
+      "description": "Ball on the tip of each spike; 0 = none.",
+      "type": "number",
+      "min": 0,
+      "max": 2.5,
+      "step": 0.05,
+      "appliesWhen": "struts > 0"
+    },
+    {
+      "key": "drop",
+      "group": "network",
+      "default": 0,
+      "description": "Randomly removes this fraction of lines (thinning). Disconnected pieces are dropped automatically.",
+      "type": "number",
+      "min": 0,
+      "max": 0.7,
+      "step": 0.01
+    },
+    {
+      "key": "sym",
+      "group": "symmetry",
+      "default": 4,
+      "description": "Symmetry around the vertical axis: 0 none, 1 mirror, n = n-fold (kaleidoscope-like, also mirrored). Noise obeys it.",
+      "type": "enum",
+      "options": [
+        {
+          "value": 0,
+          "label": "0"
+        },
+        {
+          "value": 1,
+          "label": "1"
+        },
+        {
+          "value": 2,
+          "label": "2"
+        },
+        {
+          "value": 3,
+          "label": "3"
+        },
+        {
+          "value": 4,
+          "label": "4"
+        },
+        {
+          "value": 5,
+          "label": "5"
+        },
+        {
+          "value": 6,
+          "label": "6"
+        },
+        {
+          "value": 7,
+          "label": "7"
+        },
+        {
+          "value": 8,
+          "label": "8"
+        }
+      ]
+    },
+    {
+      "key": "bend",
+      "group": "noise",
+      "default": 0,
+      "description": "Bends the skeleton lines (wobble amplitude).",
+      "type": "number",
+      "min": 0,
+      "max": 0.3,
+      "step": 0.005
+    },
+    {
+      "key": "bendFreq",
+      "group": "noise",
+      "default": 1.5,
+      "description": "Wobble frequency: small = slow large waves, large = fine waves.",
+      "type": "number",
+      "min": 0.5,
+      "max": 4,
+      "step": 0.05,
+      "appliesWhen": "bend > 0"
+    },
+    {
+      "key": "rnoise",
+      "group": "noise",
+      "default": 0,
+      "description": "Lumpiness of the flesh along lines. Has little effect on blob balls.",
+      "type": "number",
+      "min": 0,
+      "max": 0.8,
+      "step": 0.01
+    },
+    {
+      "key": "rnoiseFreq",
+      "group": "noise",
+      "default": 3,
+      "description": "Lump frequency: small = big lumps, large = fine roughness.",
+      "type": "number",
+      "min": 1,
+      "max": 8,
+      "step": 0.1,
+      "appliesWhen": "rnoise > 0"
+    },
+    {
+      "key": "seed",
+      "group": "noise",
+      "default": 1,
+      "description": "Random seed for every random choice (wobble, lumps, thinning, random membranes). Same seed = same result.",
+      "type": "integer",
+      "min": 0,
+      "max": 9999,
+      "step": 1
+    },
+    {
+      "key": "surface",
+      "group": "finish",
+      "default": 2,
+      "description": "Surface finish (rendering only): 0 glossy, 1 semi-gloss, 2 standard, 3 matte, 4 grainy.",
+      "type": "enum",
+      "options": [
+        {
+          "value": 0,
+          "label": "glossy"
+        },
+        {
+          "value": 1,
+          "label": "semi-gloss"
+        },
+        {
+          "value": 2,
+          "label": "standard"
+        },
+        {
+          "value": 3,
+          "label": "matte"
+        },
+        {
+          "value": 4,
+          "label": "grainy"
+        }
+      ]
+    },
+    {
+      "key": "clarity",
+      "group": "finish",
+      "default": 0,
+      "description": "Transparency (rendering only): 0 opaque, 1 slightly translucent, 2 translucent, 3 clear (refractive).",
+      "type": "enum",
+      "options": [
+        {
+          "value": 0,
+          "label": "opaque"
+        },
+        {
+          "value": 1,
+          "label": "slightly translucent"
+        },
+        {
+          "value": 2,
+          "label": "translucent"
+        },
+        {
+          "value": 3,
+          "label": "clear"
+        }
+      ]
+    },
+    {
+      "key": "color",
+      "group": "finish",
+      "default": 0,
+      "description": "Palette colour index (rendering only).",
+      "type": "enum",
+      "options": [
+        {
+          "value": 0,
+          "label": "#cfa77a"
+        },
+        {
+          "value": 1,
+          "label": "#c4553a"
+        },
+        {
+          "value": 2,
+          "label": "#2f5f86"
+        },
+        {
+          "value": 3,
+          "label": "#d9a93a"
+        },
+        {
+          "value": 4,
+          "label": "#4d7a58"
+        },
+        {
+          "value": 5,
+          "label": "#ebe4d6"
+        },
+        {
+          "value": 6,
+          "label": "#3b3936"
+        },
+        {
+          "value": 7,
+          "label": "#9c7fb0"
+        }
+      ]
+    }
+  ]
+}

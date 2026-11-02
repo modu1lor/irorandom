@@ -1,0 +1,41 @@
+{
+  "about": "Worked examples: a goal, the parameters that reach it, and why. Unlisted parameters use their defaults. Start from the closest recipe and adjust.",
+  "recipes": [
+    { "id": "open-box", "goal": "Box with an open top", "params": { "base": "prism", "sides": 4, "bulge": 0, "size": 0.9, "height": 1.6, "radius": 0.04, "profile": 1, "fillet": 0.3, "membrane": 1, "membraneFaces": 2, "membraneTh": 0.6, "sym": 4 },
+      "why": "prism with 4 sides gives a square frame; membraneFaces 2 plates every face except the top. height 1.6 is the tallest a prism gets (≈ 0.8 × width)." },
+    { "id": "vase", "goal": "Cylindrical vase (closed bottom, open top)", "params": { "base": "prism", "sides": 8, "bulge": 1, "size": 0.9, "height": 1.6, "radius": 0.04, "membrane": 1, "membraneFaces": 2, "membraneTh": 0.6, "sym": 8 },
+      "why": "bulge 1 turns the octagon into a circle; membraneFaces 2 leaves the top open." },
+    { "id": "tray", "goal": "Shallow round tray", "params": { "base": "prism", "sides": 8, "bulge": 1, "size": 1.1, "height": 0.3, "radius": 0.04, "membrane": 1, "membraneFaces": 2, "membraneTh": 0.6, "fillet": 1.2, "sym": 8 },
+      "why": "Same as the vase with a low height." },
+    { "id": "open-tube", "goal": "Tube open at both ends", "params": { "base": "prism", "sides": 8, "bulge": 1, "size": 0.8, "height": 1.4, "radius": 0.04, "membrane": 1, "membraneFaces": 1, "membraneTh": 0.6, "sym": 8 },
+      "why": "membraneFaces 1 plates the sides only." },
+    { "id": "bowl", "goal": "Solid lump with a bowl-shaped hollow", "params": { "base": "blob", "count": 1, "size": 1, "height": 0.7, "radius": 0.3, "hole": 0.45, "holeDepth": 0.55, "sym": 0 },
+      "why": "A single blob is solid; a hole with holeDepth < 1 leaves a bottom." },
+    { "id": "donut", "goal": "Donut (torus)", "params": { "base": "loop", "sides": 8, "bulge": 1, "size": 0.9, "radius": 0.25, "fillet": 1.2, "sym": 8 },
+      "why": "loop with bulge 1 is a circle; a thick radius makes it a torus." },
+    { "id": "chain-link", "goal": "Elliptical ring (chain link)", "params": { "base": "loop", "sides": 8, "bulge": 1, "size": 0.9, "radius": 0.08, "depth": 0.55, "sym": 2 },
+      "why": "depth squashes the circle front-to-back into an ellipse." },
+    { "id": "star-medal", "goal": "Flat five-pointed star medal", "params": { "base": "loop", "sides": 5, "bulge": -0.7, "size": 1, "radius": 0.08, "membrane": 1, "membraneTh": 0.8, "sym": 5 },
+      "why": "Negative bulge pulls the pentagon edges inward into a star; membrane fills it." },
+    { "id": "spring", "goal": "Coil spring with three turns", "params": { "base": "helix", "arc": 330, "size": 1, "height": 0.8, "radius": 0.04, "sym": 0 },
+      "why": "helix turns = arc / 110." },
+    { "id": "lattice-cube", "goal": "Cube made of a lattice", "params": { "base": "prism", "sides": 4, "bulge": 0, "size": 0.9, "height": 1.6, "radius": 0.03, "profile": 1, "lattice": 1, "grid": 3, "membrane": 0, "sym": 4 },
+      "why": "lattice subdivides each face; square profile gives crisp bars." },
+    { "id": "urchin", "goal": "Spiky ball (sea urchin)", "params": { "base": "bipyramid", "sides": 8, "bulge": 1, "size": 1, "height": 1.6, "radius": 0.08, "lattice": 1, "grid": 2, "membrane": 1, "membraneTh": 1, "struts": 1, "strutLen": 0.35, "knob": 0, "fillet": 1.2, "sym": 8 },
+      "why": "Spikes grow from skeleton points, so lattice is used to create many points; membranes close the body." },
+    { "id": "dumbbell", "goal": "Dumbbell", "params": { "base": "line", "size": 1, "radius": 0.1, "taper": 1, "fillet": 0.6, "sym": 1 },
+      "why": "Positive taper thickens the ends of the line." },
+    { "id": "wire-octahedron", "goal": "Wire octahedron", "params": { "base": "bipyramid", "sides": 4, "bulge": 0, "size": 0.9, "height": 1.25, "radius": 0.025, "membrane": 0, "sym": 4 },
+      "why": "bipyramid with 4 sides is an octahedron; no membrane leaves the wire frame." },
+    { "id": "lidded-cage", "goal": "Cage with solid top and bottom", "params": { "base": "prism", "sides": 6, "bulge": 0.2, "size": 1, "height": 1.2, "radius": 0.035, "lattice": 1, "grid": 2, "membrane": 1, "membraneFaces": 3, "membraneTh": 0.6, "sym": 6 },
+      "why": "membraneFaces 3 plates only the horizontal faces; lattice fills the open sides." },
+    { "id": "organic-lump", "goal": "Lumpy organic form", "params": { "base": "star", "sides": 5, "size": 1, "height": 0.8, "radius": 0.16, "rnoise": 0.6, "rnoiseFreq": 3, "bend": 0.12, "fillet": 1.4, "sym": 0 },
+      "why": "rnoise acts on lines (not blob balls), so a star of thick arms with lumps and bends reads as organic." }
+  ],
+  "limits": [
+    "No sphere skeleton: bulge only bends horizontal polygon edges, so a round cage comes out cylindrical.",
+    "No legs: a tripod or stand cannot be made directly.",
+    "No combining shapes: handles or attachments need two generated meshes joined elsewhere.",
+    "No inward-curved floors: a dish is flat-bottomed."
+  ]
+}

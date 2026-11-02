@@ -1,0 +1,31 @@
+# irorandom
+
+> Zero-dependency JavaScript library that generates closed, printable 3D meshes from ~30 parameters (skeleton → flesh → lattice → noise, via signed distance fields and Surface Nets). Use it instead of hand-modelling or boolean operations when you need a rounded, finished object quickly: boxes, vessels, trays, rings, springs, lattices, spiky or organic forms.
+
+## Use
+
+- `import { generate, measure, toSTL, toOBJ, random } from './index.js'`
+- `generate(params)` → mesh `{ positions, normals, colors, indices, color, params }`. Y up, centred, longest side = `params.size`. Unspecified params use defaults.
+- `measure(mesh)` → `{ size:[x,y,z], volume, parts, closed, holes, nonManifoldEdges, triangles }`. Use it to verify a result and iterate.
+- `toSTL(mesh, { size: 60 })` → binary STL ArrayBuffer (longest side in mm, Z up). `toOBJ(mesh)` → OBJ text.
+- `random(seed)` → a full random parameter set (deterministic per seed).
+
+## How to choose parameters
+
+1. Pick `base` by topology: closed vessel or box → `prism` + `membrane: 1` + `membraneFaces: 2` (open top); ring → `loop` (+ `bulge: 1` for round, `depth` < 1 for an ellipse); spring → `helix` (turns = `arc` / 110); spiky ball → `bipyramid` + `bulge: 1` + `lattice: 1` + `struts: 1`; lump → `blob`; wire frame → any polyhedral base with `membrane: 0`.
+2. Set proportions: `size` (longest side), `height` (ratio; prism family ≈ value × 0.5 of width, max 1.6), `depth` (front-to-back squash).
+3. Set material: `radius` (thickness), `profile` (0 round, 1 square), `fillet` (joint rounding), `taper` (+ thick ends, − thick middle).
+4. Add structure or irregularity: `lattice`/`grid`, `struts`/`strutLen`, `hole`/`holeDepth` (< 1 keeps a bottom), `bend`, `rnoise`, `drop`, `sym`.
+5. Call `measure()` and adjust.
+
+## Limits
+
+- No sphere skeleton (`bulge` bends only horizontal polygon edges), no legs, no combining shapes, no inward-curved floors.
+- `membrane` below 1 picks faces at random unless `membraneFaces` is set.
+
+## Files
+
+- [Parameter spec (JSON)](spec/parameters.json): every parameter with range, default, effect and when it applies.
+- [Recipes (JSON)](recipes/recipes.json): goals with working parameter sets and the reasoning behind them.
+- [Parameters (Markdown)](docs/PARAMETERS.md)
+- [README](README.md)

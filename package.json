@@ -1,0 +1,42 @@
+{
+  "name": "irorandom",
+  "version": "0.1.0",
+  "description": "Procedural object generator: skeleton → flesh → lattice → noise. Signed distance fields + Surface Nets, zero dependencies.",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js"
+  },
+  "files": [
+    "index.js",
+    "src",
+    "spec",
+    "recipes",
+    "llms.txt"
+  ],
+  "scripts": {
+    "spec": "node scripts/build-spec.mjs",
+    "check": "node scripts/check.mjs"
+  },
+  "keywords": [
+    "procedural-generation",
+    "generative-art",
+    "sdf",
+    "signed-distance-field",
+    "surface-nets",
+    "mesh",
+    "3d-printing",
+    "stl",
+    "obj",
+    "threejs",
+    "parametric",
+    "sculpture"
+  ],
+  "author": "Iromune Goshikizawa (https://github.com/modu1lor)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/modu1lor/irorandom.git"
+  },
+  "homepage": "https://github.com/modu1lor/irorandom"
+}
