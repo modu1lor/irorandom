@@ -1,0 +1,6 @@
+name = "irorandom-mcp"
+main = "worker.js"
+compatibility_date = "2026-10-01"
+# Served only at mcp.irosawa.com (the workers.dev address is turned off)
+workers_dev = false
+routes = [{ pattern = "mcp.irosawa.com", custom_domain = true }]

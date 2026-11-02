@@ -29,3 +29,7 @@
 - [Recipes (JSON)](recipes/recipes.json): goals with working parameter sets and the reasoning behind them.
 - [Parameters (Markdown)](docs/PARAMETERS.md)
 - [README](README.md)
+
+## MCP server
+
+- `https://mcp.irosawa.com/mcp` (Streamable HTTP, no auth). Tools: `get_guide`, `make_shapes` (1–4 parameter sets → a link that opens them in the Irorandom app), `random_shapes`, `read_link`.

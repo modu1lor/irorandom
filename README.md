@@ -67,6 +67,22 @@ See **[docs/PARAMETERS.md](docs/PARAMETERS.md)** (or the machine-readable [spec/
 
 ## Using it with an AI assistant
 
+### MCP server
+
+A public [MCP](https://modelcontextprotocol.io) server lets an assistant make shapes and hand you a link that opens them in the [Irorandom](https://irorandom.irosawa.com) app (up to 4 per link, sealed in one blister pack):
+
+```
+https://mcp.irosawa.com/mcp
+```
+
+- **Claude** (claude.ai, desktop, mobile): Settings → Connectors → Add custom connector, and paste the URL.
+- **Claude Code**: `claude mcp add --transport http irorandom https://mcp.irosawa.com/mcp`
+- Other clients: Streamable HTTP, no authentication.
+
+Tools: `get_guide` (parameter spec and recipes), `make_shapes` (check 1–4 parameter sets, return an app link), `random_shapes`, `read_link` (turn an app link back into parameters, to explain or adjust a shape). The server only checks parameters and writes links; the shapes are built in your browser. Source: [`mcp/`](mcp/) (a Cloudflare Worker, no dependencies).
+
+### With the library
+
 The spec and recipes are meant to be handed to a language model. A workflow that works well:
 
 1. Give the model `spec/parameters.json` and `recipes/recipes.json` (or [`llms.txt`](llms.txt)).
