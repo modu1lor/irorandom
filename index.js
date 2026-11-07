@@ -6,7 +6,7 @@
 import { generate as buildPrimitives } from './src/skeleton.js';
 import { buildField } from './src/sdf.js';
 import { polygonize, keepLargestPart } from './src/mesh.js';
-import { simplifyColliders, pruneColliders } from './src/colliders.js';
+import { simplifyColliders, clipColliders } from './src/colliders.js';
 import { SCHEMA, DEFAULTS, PALETTE, randomParams } from './src/params.js';
 import { mulberry32 } from './src/rng.js';
 
@@ -27,11 +27,12 @@ export function generate(params = {}, { resolution = 56, colliders = false } = {
   const P = { ...DEFAULTS, ...params };
   const prim = buildPrimitives(P);
   // Pieces cut loose by holes or thinning are dropped, so the result is always one connected part
-  const { m, near } = keepLargestPart(polygonize(buildField(prim), resolution));
+  const field = buildField(prim);
+  const { m, near } = keepLargestPart(polygonize(field, resolution));
   const out = { ...m, color: PALETTE[P.color]?.[1] ?? PALETTE[0][1], params: P };
   if (colliders) {
-    const col = simplifyColliders(prim.colliders);
-    out.colliders = near ? pruneColliders(col, near) : col;
+    // Trimmed to the finished shape: nothing left inside holes or on dropped pieces
+    out.colliders = clipColliders(simplifyColliders(prim.colliders), field, prim.hole, near);
   }
   return out;
 }
